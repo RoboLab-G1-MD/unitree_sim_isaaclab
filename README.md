@@ -111,15 +111,6 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 | `/camera/depth/camera_info` | `sensor_msgs/CameraInfo` | D435i depth intrinsics (fx≈337 px) |
 | `/utlidar/cloud` | `sensor_msgs/PointCloud2` | Livox Mid-360, XYZ float32, frame `mid360_link` |
 
-### State bridge output (after `g1_state_bridge`)
-
-| ROS2 topic | Type |
-|------------|------|
-| `/joint_states` | `sensor_msgs/JointState` |
-| `/imu/data` | `sensor_msgs/Imu` |
-| `/odom/legs` | `nav_msgs/Odometry` |
-| `/tf` | TF tree: `odom → base_link → ... → mid360_link` |
-
 ---
 
 ## What was added in this fork
