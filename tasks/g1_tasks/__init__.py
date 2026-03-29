@@ -21,7 +21,7 @@ from . import pick_place_redblock_g1_29dof_inspire
 from . import move_cylinder_g1_29dof_dex1_wholebody
 from . import move_cylinder_g1_29dof_dex3_wholebody
 from . import move_cylinder_g1_29dof_inspire_wholebody
-from . import g1_29dof_inspire_wholebody_empty_room
+from . import klapaucjusz_sim
 
 # export all modules
 __all__ = [
@@ -35,5 +35,5 @@ __all__ = [
         "move_cylinder_g1_29dof_dex1_wholebody",
         "move_cylinder_g1_29dof_dex3_wholebody",
         "move_cylinder_g1_29dof_inspire_wholebody",
-        "g1_29dof_inspire_wholebody_empty_room",
+        "klapaucjusz_sim",
  ]

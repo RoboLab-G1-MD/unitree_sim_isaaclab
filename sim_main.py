@@ -674,7 +674,7 @@ if __name__ == "__main__":
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Dex1-Wholebody  --robot_type g129 --enable_dex1_dds 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Dex3-Wholebody  --robot_type g129 --enable_dex3_dds 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Inspire-Wholebody  --robot_type g129 --enable_inspire_dds 
-# python sim_main.py --device cpu  --enable_cameras  --task G129-Inspire-Wholebody-Empty-Room  --robot_type g129 --enable_inspire_dds
+# python sim_main.py --device cpu  --enable_cameras  --task Klapaucjusz-Sim  --robot_type g129 --enable_inspire_dds --enable_sensor_publisher
 
 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-PickPlace-Cylinder-H12-27dof-Inspire-Joint  --enable_inspire_dds --robot_type h1_2
