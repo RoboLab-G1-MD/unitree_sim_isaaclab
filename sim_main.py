@@ -53,6 +53,7 @@ parser.add_argument("--profile_interval", type=int, default=500, help="performan
 parser.add_argument("--model_path", type=str, default="assets/model/policy.onnx", help="model path")
 parser.add_argument("--reward_interval", type=int, default=10, help="step interval for reward calculation")
 parser.add_argument("--enable_wholebody_dds", action="store_true", default=False, help="enable wh dds")
+parser.add_argument("--enable_sensor_publisher", action="store_true", default=False, help="enable LiDAR DDS + ZMQ RGB/Depth publisher")
 
 parser.add_argument("--physics_dt", type=float, default=None, help="physics time step, e.g., 0.005")
 parser.add_argument("--render_interval", type=int, default=None, help="render interval steps (>=1)")
@@ -673,6 +674,7 @@ if __name__ == "__main__":
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Dex1-Wholebody  --robot_type g129 --enable_dex1_dds 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Dex3-Wholebody  --robot_type g129 --enable_dex3_dds 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-Move-Cylinder-G129-Inspire-Wholebody  --robot_type g129 --enable_inspire_dds 
+# python sim_main.py --device cpu  --enable_cameras  --task G129-Inspire-Wholebody-Empty-Room  --robot_type g129 --enable_inspire_dds
 
 
 # python sim_main.py --device cpu  --enable_cameras  --task Isaac-PickPlace-Cylinder-H12-27dof-Inspire-Joint  --enable_inspire_dds --robot_type h1_2

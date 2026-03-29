@@ -47,9 +47,22 @@ def create_dds_objects(args_cli,env):
     rewards_dds = RewardsDDS(env,args_cli.task)
     dds_manager.register_object("rewards", rewards_dds)
     publish_names.append("rewards")
+    from dds.odom_state_dds import OdomStateDDS
+    odom_state_dds = OdomStateDDS(env)
+    dds_manager.register_object("odom_state", odom_state_dds)
+    publish_names.append("odom_state")
 
     dds_manager.start_publishing(publish_names)
     dds_manager.start_subscribing(subscribe_names)
+
+    if getattr(args_cli, "enable_sensor_publisher", False):
+        from sensor_publisher import start_sensor_publisher
+        start_sensor_publisher(
+            enable_lidar=True,
+            enable_rgb=True,
+            enable_depth=True,
+        )
+
     return reset_pose_dds,sim_state_dds,dds_manager
 
 def create_dds_objects_replay(args_cli,env):

@@ -199,7 +199,6 @@ sudo apt install git-lfs
 
 ```
 python sim_main.py --device cpu  --enable_cameras  --task  Isaac-PickPlace-Cylinder-G129-Dex1-Joint    --enable_dex1_dds --robot_type g129
-python sim_main.py --device cpu  --enable_cameras  --task G129-Inspire-Wholebody-Empty-Room --enable_inspire_dds --robot_type g129
 ```
 
 - `--task`: Task name, corresponding to the task names in the table above
