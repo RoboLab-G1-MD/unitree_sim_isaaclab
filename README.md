@@ -65,10 +65,13 @@ python sim_main.py \
 
 ## Running the State Bridge in klapaucjusz_ros (in devcontainer)
 
-> **Note:** The `sim=true` flag is not yet implemented — use the real robot mode for now.
 
 ```bash
-ros2 launch g1_state_bridge g1_state_bridge.launch.py sim=true
+ros2 launch g1_state_bridge g1_state_bridge.launch.py
+```
+
+```bash
+ros2 launch g1_cmd_bridge g1_cmd_bridge.launch.py sim=true
 ```
 
 ---
@@ -79,11 +82,11 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 ### Robot state & control
 
-| DDS topic | ROS2 topic | Type | Direction |
-|-----------|------------|------|-----------|
-| `rt/lowstate` | `/lowstate` | `unitree_hg/LowState` | sim → ROS2 |
-| `rt/lowcmd` | `/lowcmd` | `unitree_hg/LowCmd` | ROS2 → sim |
-| `rt/odommodestate` | `/odommodestate` | `unitree_go/SportModeState` | sim → ROS2 |
+| DDS topic | ROS2 topic | Type | Direction | Details |
+|-----------|------------|------|-----------|---------|
+| `rt/lowstate` | `/lowstate` | `unitree_hg/LowState` | sim → ROS2 | joint states (29 DOF) + IMU from torso link |
+| `rt/lowcmd` | `/lowcmd` | `unitree_hg/LowCmd` | ROS2 → sim | joint position/torque commands (all 29 joints) |
+| `rt/odommodestate` | `/odommodestate` | `unitree_go/SportModeState` | sim → ROS2 | temporary ground-truth pose (not legged odometry) |
 
 ### Hands (Inspire)
 
@@ -94,7 +97,7 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 ### Sim control
 
-| DDS topic | ROS2 topic | Direction | Notes |
+| DDS topic | ROS2 topic | Direction | Details |
 |-----------|------------|-----------|-------|
 | `rt/sim_state` | `/sim_state` | sim → ROS2 | current sim state (JSON) |
 | `rt/rewards_state` | `/rewards_state` | sim → ROS2 | reward values (JSON) |
@@ -121,3 +124,17 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 - **`dds/odom_state_dds.py`** — publishes ground-truth odometry as `SportModeState`
 - **`dds/ros2_image_msgs.py`** — CycloneDDS IDL types for `sensor_msgs/Image` and `CameraInfo`
 - **`sensor_publisher.py`** — background threads for LiDAR + camera DDS publishing
+
+
+
+---
+
+### New in g1_state_bridge in g1_29dof_ros.urdf:
+```bash
+  <link name="d435_optical_link"></link>
+  <joint name="d435_optical_joint" type="fixed">
+    <origin xyz="0 0 0" rpy="-1.5707963 0 -1.5707963"/>
+    <parent link="d435_link"/>
+    <child link="d435_optical_link"/>
+  </joint>
+```

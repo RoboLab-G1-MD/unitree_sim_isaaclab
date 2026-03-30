@@ -137,6 +137,7 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
         horizontal_aperture=10.46,
         clipping_range=(0.1, 10.0),
         data_types=["rgb"],
+        rot_offset=(0.5, -0.5, 0.5, -0.5),
     )
     # D435i depth: 640x480, HFOV=87°, zasięg 0.1–10m
     depth_camera = CameraBaseCfg.get_camera_config(
@@ -147,6 +148,7 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
         horizontal_aperture=14.42,
         clipping_range=(0.1, 10.0),
         data_types=["distance_to_image_plane"],
+        rot_offset=(0.5, -0.5, 0.5, -0.5),
     )
     robot_camera = CameraPresets.g1_world_camera()
     world_camera = CameraBaseCfg.get_camera_config(

@@ -38,8 +38,8 @@ _TOPIC_RGB_INFO  = "rt/camera/color/camera_info"
 _TOPIC_DEPTH     = "rt/camera/depth/image_rect_raw"
 _TOPIC_DEPTH_INFO = "rt/camera/depth/camera_info"
 
-_FRAME_COLOR = "d435_link"
-_FRAME_DEPTH = "d435_link"
+_FRAME_COLOR = "d435_optical_link"
+_FRAME_DEPTH = "d435_optical_link"
 
 
 class CameraDDS:
