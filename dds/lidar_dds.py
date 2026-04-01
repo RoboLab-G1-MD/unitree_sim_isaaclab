@@ -1,6 +1,6 @@
 # Copyright (c) 2025, Unitree Robotics Co., Ltd. All Rights Reserved.
 # License: Apache License, Version 2.0
-"""LiDAR DDS publisher — publishes rt/utlidar/cloud as sensor_msgs/PointCloud2."""
+"""LiDAR DDS publisher — publishes rt/utlidar/cloud_livox_mid360 as sensor_msgs/PointCloud2."""
 
 import struct
 import time
@@ -16,7 +16,7 @@ from unitree_sdk2py.idl.builtin_interfaces.msg.dds_ import Time_
 from dds.dds_base import DDSObject
 
 _LIDAR_SHM_NAME = "isaac_lidar_shm"
-_LIDAR_TOPIC = "rt/utlidar/cloud"
+_LIDAR_TOPIC = "rt/utlidar/cloud_livox_mid360"
 _FRAME_ID = "mid360_link"
 
 # PointField datatype constants (matches sensor_msgs/PointField)
@@ -24,7 +24,7 @@ _FLOAT32 = 7
 
 
 class LidarDDS(DDSObject):
-    """Publishes LiDAR point cloud to DDS topic rt/utlidar/cloud."""
+    """Publishes LiDAR point cloud to DDS topic rt/utlidar/cloud_livox_mid360."""
 
     node_name = "LidarDDS"
 

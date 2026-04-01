@@ -112,7 +112,7 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 | `/camera/color/camera_info` | `sensor_msgs/CameraInfo` | D435i intrinsics (fx≈465 px) |
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | depth 640×480, `32FC1` (metres) |
 | `/camera/depth/camera_info` | `sensor_msgs/CameraInfo` | D435i depth intrinsics (fx≈337 px) |
-| `/utlidar/cloud` | `sensor_msgs/PointCloud2` | Livox Mid-360, XYZ float32, frame `mid360_link` |
+| `/utlidar/cloud_livox_mid360` | `sensor_msgs/PointCloud2` | Livox Mid-360, XYZ float32, frame `mid360_link` |
 
 ---
 
@@ -129,7 +129,7 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 ---
 
-### New in g1_state_bridge in g1_29dof_ros.urdf:
+### New in klapaucjusz_ros g1_state_bridge g1_29dof_ros.urdf:
 ```bash
   <link name="d435_optical_link"></link>
   <joint name="d435_optical_joint" type="fixed">
