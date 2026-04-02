@@ -3,9 +3,10 @@
 """LiDAR DDS publisher — publishes rt/utlidar/cloud_livox_mid360 as sensor_msgs/PointCloud2."""
 
 import struct
-import time
 import numpy as np
 from multiprocessing import shared_memory
+
+import dds.sim_time as sim_time
 
 from unitree_sdk2py.core.channel import ChannelPublisher
 from unitree_sdk2py.idl.sensor_msgs.msg.dds_ import PointCloud2_
@@ -59,12 +60,9 @@ class LidarDDS(DDSObject):
         num_points = xyz.shape[0]
         raw = xyz.tobytes()
 
-        now = time.time()
-        sec = int(now)
-        nanosec = int((now - sec) * 1e9)
-
-        self._msg.header.stamp.sec = sec
-        self._msg.header.stamp.nanosec = nanosec
+        stamp = sim_time.now_stamp()
+        self._msg.header.stamp.sec = stamp.sec
+        self._msg.header.stamp.nanosec = stamp.nanosec
         self._msg.width = num_points
         self._msg.row_step = num_points * 12
         self._msg.data = list(raw)

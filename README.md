@@ -58,25 +58,38 @@ python sim_main.py \
     --task Klapaucjusz-Sim \
     --robot_type g129 \
     --enable_inspire_dds \
-    --enable_sensor_publisher
+    --enable_sensor_publisher \
+    --use_sim_time
 ```
 
 ---
 
-## Running the State Bridge in klapaucjusz_ros (in devcontainer)
+## Running in klapaucjusz_ros (in devcontainer)
 
+### full stack (bridges + localization + nav2)
 
 ```bash
-ros2 launch g1_state_bridge g1_state_bridge.launch.py
+ros2 launch g1_bringup g1_nav_bringup.launch.py use_sim_time:=true
 ```
 
+### or bridges only (without nav2)
+
 ```bash
+ros2 launch g1_state_bridge g1_state_bridge.launch.py use_sim_time:=true
 ros2 launch g1_cmd_bridge g1_cmd_bridge.launch.py sim=true
 ```
+### foxglove bridge
+
+```bash
+cd /workspace
+source dev_tools.sh
+foxglove
+```
 
 ---
+---
 
-## DDS Topics (ROS_DOMAIN_ID=1)
+## DDS Topics
 
 All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
@@ -86,7 +99,6 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 |-----------|------------|------|-----------|---------|
 | `rt/lowstate` | `/lowstate` | `unitree_hg/LowState` | sim → ROS2 | joint states (29 DOF) + IMU from torso link |
 | `rt/lowcmd` | `/lowcmd` | `unitree_hg/LowCmd` | ROS2 → sim | joint position/torque commands (all 29 joints) |
-| `rt/odommodestate` | `/odommodestate` | `unitree_go/SportModeState` | sim → ROS2 | temporary ground-truth pose (not legged odometry) |
 
 ### Hands (Inspire)
 
@@ -113,15 +125,18 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 | `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | depth 640×480, `32FC1` (metres) |
 | `/camera/depth/camera_info` | `sensor_msgs/CameraInfo` | D435i depth intrinsics (fx≈337 px) |
 | `/utlidar/cloud_livox_mid360` | `sensor_msgs/PointCloud2` | Livox Mid-360, XYZ float32, frame `mid360_link` |
+| `/dog_imu_raw` | `sensor_msgs/Imu` | frame `dog_imu_link`, white noise: accel σ=0.02 m/s², gyro σ=0.005 rad/s |
+| `/dog_odom` | `nav_msgs/Odometry` | ground-truth pose from Isaac Lab, frame `odom` → `base_link` |
 
 ---
 
 ## What was added in this fork
 
 - **`tasks/g1_tasks/klapaucjusz_sim/`** — empty room task with LiDAR + D435i cameras + cylinder obstacle
-- **`dds/lidar_dds.py`** — publishes Livox Mid-360 point cloud via DDS
+- **`dds/lidar_dds.py`** — publishes Livox Mid-360 point cloud via DDS (`rt/utlidar/cloud_livox_mid360`)
 - **`dds/camera_dds.py`** — publishes RGB + depth images + CameraInfo via DDS
-- **`dds/odom_state_dds.py`** — publishes ground-truth odometry as `SportModeState`
+- **`dds/odom_state_dds.py`** — publishes ground-truth odometry as `nav_msgs/Odometry` on `rt/dog_odom`
+- **`dds/imu_dds.py`** — publishes `sensor_msgs/Imu` on `rt/dog_imu_raw` (white noise: accel σ=0.02 m/s², gyro σ=0.005 rad/s)
 - **`dds/ros2_image_msgs.py`** — CycloneDDS IDL types for `sensor_msgs/Image` and `CameraInfo`
 - **`sensor_publisher.py`** — background threads for LiDAR + camera DDS publishing
 

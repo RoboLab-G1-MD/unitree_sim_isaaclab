@@ -54,6 +54,7 @@ parser.add_argument("--model_path", type=str, default="assets/model/policy.onnx"
 parser.add_argument("--reward_interval", type=int, default=10, help="step interval for reward calculation")
 parser.add_argument("--enable_wholebody_dds", action="store_true", default=False, help="enable wh dds")
 parser.add_argument("--enable_sensor_publisher", action="store_true", default=False, help="enable LiDAR DDS + ZMQ RGB/Depth publisher")
+parser.add_argument("--use_sim_time", action="store_true", default=False, help="publish rt/clock and use sim time for all DDS message headers (enables use_sim_time: true in ROS2)")
 
 parser.add_argument("--physics_dt", type=float, default=None, help="physics time step, e.g., 0.005")
 parser.add_argument("--render_interval", type=int, default=None, help="render interval steps (>=1)")

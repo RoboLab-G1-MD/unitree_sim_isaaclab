@@ -13,8 +13,9 @@ D435i intrinsics are derived from Isaac Lab camera config:
   Depth: focal_length=7.6, horizontal_aperture=14.42  → fx=fy≈337.3 px
 """
 
-import time
 import numpy as np
+
+import dds.sim_time as sim_time
 
 from unitree_sdk2py.core.channel import ChannelPublisher
 from unitree_sdk2py.idl.std_msgs.msg.dds_ import Header_
@@ -116,9 +117,7 @@ class CameraDDS:
 # ── helpers ────────────────────────────────────────────────────────────────
 
 def _now_stamp() -> Time_:
-    now = time.time()
-    sec = int(now)
-    return Time_(sec=sec, nanosec=int((now - sec) * 1e9))
+    return sim_time.now_stamp()
 
 
 def _build_camera_info(fx: float, frame_id: str) -> CameraInfo_:

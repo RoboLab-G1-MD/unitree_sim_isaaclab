@@ -1,10 +1,21 @@
 # Copyright (c) 2025, Unitree Robotics Co., Ltd. All Rights Reserved.
 # License: Apache License, Version 2.0
+import dds.sim_time as sim_time
 from dds.dds_master import dds_manager
 
 def create_dds_objects(args_cli,env):
+    use_sim_time = getattr(args_cli, 'use_sim_time', False)
+    sim_time.init(use_sim_time)
+
     publish_names = []
     subscribe_names = []
+
+    if use_sim_time:
+        from dds.clock_dds import ClockDDS
+        clock_dds = ClockDDS(env)
+        dds_manager.register_object("clock", clock_dds)
+        publish_names.append("clock")
+
     if args_cli.robot_type=="g129" or args_cli.robot_type=="h1_2":
         from dds.g1_robot_dds import G1RobotDDS
         g1_robot = G1RobotDDS()
@@ -51,6 +62,10 @@ def create_dds_objects(args_cli,env):
     odom_state_dds = OdomStateDDS(env)
     dds_manager.register_object("odom_state", odom_state_dds)
     publish_names.append("odom_state")
+    from dds.imu_dds import ImuDDS
+    imu_dds = ImuDDS(env)
+    dds_manager.register_object("imu", imu_dds)
+    publish_names.append("imu")
 
     dds_manager.start_publishing(publish_names)
     dds_manager.start_subscribing(subscribe_names)
