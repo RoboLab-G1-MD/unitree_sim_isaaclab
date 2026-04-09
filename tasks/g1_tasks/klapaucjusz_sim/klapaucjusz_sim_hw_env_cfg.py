@@ -128,6 +128,31 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
         ),
     )
 
+    # Head front camera RGB: 640x480, HFOV=69°, attached to torso_link (xyz=0.062 0.0 0.455 from URDF)
+    head_camera = CameraBaseCfg.get_camera_config(
+        prim_path="/World/envs/env_.*/Robot/torso_link/head_front_cam",
+        height=480,
+        width=640,
+        focal_length=7.6,
+        horizontal_aperture=10.46,
+        clipping_range=(0.1, 10.0),
+        data_types=["rgb"],
+        pos_offset=(0.075, 0.0, 0.47),
+        rot_offset=(0.5, -0.5, 0.5, -0.5),
+    )
+    # Head front camera depth: 640x480, HFOV=87°, zasięg 0.1–10m
+    head_depth_camera = CameraBaseCfg.get_camera_config(
+        prim_path="/World/envs/env_.*/Robot/torso_link/head_depth_cam",
+        height=480,
+        width=640,
+        focal_length=7.6,
+        horizontal_aperture=14.42,
+        clipping_range=(0.1, 10.0),
+        data_types=["distance_to_image_plane"],
+        pos_offset=(0.075, 0.0, 0.47),
+        rot_offset=(0.5, -0.5, 0.5, -0.5),
+    )
+
     # D435i RGB: 640x480, HFOV=69°, VFOV=42°
     front_camera = CameraBaseCfg.get_camera_config(
         prim_path="/World/envs/env_.*/Robot/d435_link/front_cam",
@@ -177,6 +202,7 @@ class ObservationsCfg:
         camera_image = ObsTerm(func=mdp.get_camera_image)
         lidar_scan = ObsTerm(func=mdp.get_lidar_scan)
         depth_image = ObsTerm(func=mdp.get_depth_image)
+        head_depth_image = ObsTerm(func=mdp.get_head_depth_image)
 
         def __post_init__(self):
             self.enable_corruption = False

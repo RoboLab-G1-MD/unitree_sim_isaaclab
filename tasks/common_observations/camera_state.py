@@ -118,6 +118,14 @@ def get_camera_image(
         else:
             images["head"] = head_image.cpu().numpy()
     
+    # Head front camera (second head camera)
+    if "head_camera" in camera_keys:
+        head_front_image = env.scene["head_camera"].data.output["rgb"][0]
+        if head_front_image.device.type == 'cpu':
+            images["head_front"] = head_front_image.numpy()
+        else:
+            images["head_front"] = head_front_image.cpu().numpy()
+
     # Left camera (left wrist camera)
     if "left_wrist_camera" in camera_keys:
         left_image = env.scene["left_wrist_camera"].data.output["rgb"][0]

@@ -34,13 +34,20 @@ _FX_RGB   = _fx(10.46)   # ≈ 465.4 px
 _FX_DEPTH = _fx(14.42)   # ≈ 337.3 px
 
 # ── topic names ────────────────────────────────────────────────────────────
-_TOPIC_RGB       = "rt/camera/color/image_raw"
-_TOPIC_RGB_INFO  = "rt/camera/color/camera_info"
-_TOPIC_DEPTH     = "rt/camera/depth/image_rect_raw"
+_TOPIC_RGB        = "rt/camera/color/image_raw"
+_TOPIC_RGB_INFO   = "rt/camera/color/camera_info"
+_TOPIC_DEPTH      = "rt/camera/depth/image_rect_raw"
 _TOPIC_DEPTH_INFO = "rt/camera/depth/camera_info"
 
-_FRAME_COLOR = "d435_optical_link"
-_FRAME_DEPTH = "d435_optical_link"
+_TOPIC_HEAD_RGB        = "rt/camera/head/color/image_raw"
+_TOPIC_HEAD_RGB_INFO   = "rt/camera/head/color/camera_info"
+_TOPIC_HEAD_DEPTH      = "rt/camera/head/depth/image_rect_raw"
+_TOPIC_HEAD_DEPTH_INFO = "rt/camera/head/depth/camera_info"
+
+_FRAME_COLOR      = "d435_optical_link"
+_FRAME_DEPTH      = "d435_optical_link"
+_FRAME_HEAD       = "head_front_cam_optical_link"
+_FX_HEAD_DEPTH    = _fx(14.42)   # ≈ 337.3 px
 
 
 class CameraDDS:
@@ -51,21 +58,33 @@ class CameraDDS:
         self._pub_rgb_info   = None
         self._pub_depth      = None
         self._pub_depth_info = None
+        self._pub_head_rgb        = None
+        self._pub_head_rgb_info   = None
+        self._pub_head_depth      = None
+        self._pub_head_depth_info = None
 
-        self._info_color = _build_camera_info(_FX_RGB,   _FRAME_COLOR)
-        self._info_depth = _build_camera_info(_FX_DEPTH, _FRAME_DEPTH)
+        self._info_color      = _build_camera_info(_FX_RGB,       _FRAME_COLOR)
+        self._info_depth      = _build_camera_info(_FX_DEPTH,     _FRAME_DEPTH)
+        self._info_head       = _build_camera_info(_FX_RGB,       _FRAME_HEAD)
+        self._info_head_depth = _build_camera_info(_FX_HEAD_DEPTH, _FRAME_HEAD)
 
     def setup_publishers(self) -> None:
         self._pub_rgb        = ChannelPublisher(_TOPIC_RGB,        Image_)
         self._pub_rgb_info   = ChannelPublisher(_TOPIC_RGB_INFO,   CameraInfo_)
         self._pub_depth      = ChannelPublisher(_TOPIC_DEPTH,      Image_)
         self._pub_depth_info = ChannelPublisher(_TOPIC_DEPTH_INFO, CameraInfo_)
+        self._pub_head_rgb        = ChannelPublisher(_TOPIC_HEAD_RGB,        Image_)
+        self._pub_head_rgb_info   = ChannelPublisher(_TOPIC_HEAD_RGB_INFO,   CameraInfo_)
+        self._pub_head_depth      = ChannelPublisher(_TOPIC_HEAD_DEPTH,      Image_)
+        self._pub_head_depth_info = ChannelPublisher(_TOPIC_HEAD_DEPTH_INFO, CameraInfo_)
 
         for pub in (self._pub_rgb, self._pub_rgb_info,
-                    self._pub_depth, self._pub_depth_info):
+                    self._pub_depth, self._pub_depth_info,
+                    self._pub_head_rgb, self._pub_head_rgb_info,
+                    self._pub_head_depth, self._pub_head_depth_info):
             pub.Init()
 
-        print(f"[CameraDDS] Publishers ready: {_TOPIC_RGB}, {_TOPIC_DEPTH}")
+        print(f"[CameraDDS] Publishers ready: {_TOPIC_RGB}, {_TOPIC_DEPTH}, {_TOPIC_HEAD_RGB}, {_TOPIC_HEAD_DEPTH}")
 
     def publish_color(self, bgr_np: np.ndarray) -> None:
         """Publish RGB image from a BGR uint8 numpy array (H, W, 3) or (H, W, 4)."""
@@ -91,6 +110,50 @@ class CameraDDS:
 
         self._info_color.header.stamp = stamp
         self._pub_rgb_info.Write(self._info_color)
+
+    def publish_head_color(self, bgr_np: np.ndarray) -> None:
+        """Publish head front camera RGB image."""
+        if bgr_np is None or self._pub_head_rgb is None:
+            return
+        if bgr_np.ndim == 3 and bgr_np.shape[2] == 4:
+            bgr_np = bgr_np[:, :, :3]
+        rgb = bgr_np[:, :, ::-1].astype(np.uint8)
+
+        stamp = _now_stamp()
+        msg = Image_(
+            header=Header_(stamp=stamp, frame_id=_FRAME_HEAD),
+            height=rgb.shape[0],
+            width=rgb.shape[1],
+            encoding="rgb8",
+            is_bigendian=0,
+            step=rgb.shape[1] * 3,
+            data=rgb.tobytes(),
+        )
+        self._pub_head_rgb.Write(msg)
+
+        self._info_head.header.stamp = stamp
+        self._pub_head_rgb_info.Write(self._info_head)
+
+    def publish_head_depth(self, depth_np: np.ndarray) -> None:
+        """Publish head front camera depth image from a float32 numpy array (H, W) in metres."""
+        if depth_np is None or self._pub_head_depth is None:
+            return
+        depth = depth_np.astype(np.float32)
+
+        stamp = _now_stamp()
+        msg = Image_(
+            header=Header_(stamp=stamp, frame_id=_FRAME_HEAD),
+            height=depth.shape[0],
+            width=depth.shape[1],
+            encoding="32FC1",
+            is_bigendian=0,
+            step=depth.shape[1] * 4,
+            data=depth.tobytes(),
+        )
+        self._pub_head_depth.Write(msg)
+
+        self._info_head_depth.header.stamp = stamp
+        self._pub_head_depth_info.Write(self._info_head_depth)
 
     def publish_depth(self, depth_np: np.ndarray) -> None:
         """Publish depth image from a float32 numpy array (H, W) in metres."""

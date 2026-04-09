@@ -195,7 +195,7 @@ class MultiImageReader:
             Dict[str, np.ndarray]: the image dictionary, the key is the image name, the value is the image array
         """
         images = {}
-        image_names = ['head', 'left', 'right']  # Standard image names
+        image_names = ['head', 'head_front', 'left', 'right']  # Standard image names
 
         for image_name in image_names:
             try:

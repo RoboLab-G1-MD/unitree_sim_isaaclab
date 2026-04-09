@@ -10,7 +10,8 @@ from multiprocessing import shared_memory
 
 from tools.shared_memory_utils import MultiImageReader
 
-_DEPTH_SHM_NAME = "isaac_depth_shm"
+_DEPTH_SHM_NAME      = "isaac_depth_shm"
+_HEAD_DEPTH_SHM_NAME = "isaac_head_depth_shm"
 
 
 class SensorPublisher:
@@ -29,9 +30,11 @@ class SensorPublisher:
         self._running   = False
         self._threads   = []
 
-        self._image_reader = MultiImageReader() if enable_rgb else None
-        self._depth_shm    = None
-        self._depth_buf    = None
+        self._image_reader      = MultiImageReader() if enable_rgb else None
+        self._depth_shm         = None
+        self._depth_buf         = None
+        self._head_depth_shm    = None
+        self._head_depth_buf    = None
 
         self._lidar_dds  = None
         self._camera_dds = None
@@ -89,8 +92,11 @@ class SensorPublisher:
             if self._enable_rgb:
                 try:
                     images = self._image_reader.read_images()
-                    if images and "head" in images:
-                        self._camera_dds.publish_color(images["head"])
+                    if images:
+                        if "head" in images:
+                            self._camera_dds.publish_color(images["head"])
+                        if "head_front" in images:
+                            self._camera_dds.publish_head_color(images["head_front"])
                 except Exception as e:
                     print(f"[SensorPublisher] RGB error: {e}")
 
@@ -101,6 +107,13 @@ class SensorPublisher:
                         self._camera_dds.publish_depth(depth)
                 except Exception as e:
                     print(f"[SensorPublisher] depth error: {e}")
+
+                try:
+                    head_depth = self._read_head_depth_shm()
+                    if head_depth is not None:
+                        self._camera_dds.publish_head_depth(head_depth)
+                except Exception as e:
+                    print(f"[SensorPublisher] head depth error: {e}")
 
             time.sleep(max(0.0, interval - (time.time() - t0)))
 
@@ -123,6 +136,23 @@ class SensorPublisher:
             return None
         return np.frombuffer(
             bytes(self._depth_buf[8:8 + h * w * 4]), dtype=np.float32
+        ).reshape(h, w).copy()
+
+    def _read_head_depth_shm(self) -> np.ndarray | None:
+        """Return float32 (H, W) head depth array or None."""
+        try:
+            if self._head_depth_shm is None:
+                self._head_depth_shm = shared_memory.SharedMemory(name=_HEAD_DEPTH_SHM_NAME)
+                self._head_depth_buf = np.ndarray(
+                    (self._head_depth_shm.size,), dtype=np.uint8, buffer=self._head_depth_shm.buf)
+        except FileNotFoundError:
+            return None
+
+        h, w = struct.unpack_from("<II", self._head_depth_buf[:8])
+        if h == 0 or w == 0:
+            return None
+        return np.frombuffer(
+            bytes(self._head_depth_buf[8:8 + h * w * 4]), dtype=np.float32
         ).reshape(h, w).copy()
 
     @staticmethod

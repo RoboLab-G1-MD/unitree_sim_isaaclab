@@ -120,10 +120,14 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 | ROS2 topic | Type | Details |
 |------------|------|---------|
-| `/camera/color/image_raw` | `sensor_msgs/Image` | RGB 640×480, `rgb8` |
+| `/camera/color/image_raw` | `sensor_msgs/Image` | RGB 640×480, `rgb8`, D435i chest camera, frame `d435_optical_link` |
 | `/camera/color/camera_info` | `sensor_msgs/CameraInfo` | D435i intrinsics (fx≈465 px) |
-| `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | depth 640×480, `32FC1` (metres) |
+| `/camera/depth/image_rect_raw` | `sensor_msgs/Image` | depth 640×480, `32FC1` (metres), frame `d435_optical_link` |
 | `/camera/depth/camera_info` | `sensor_msgs/CameraInfo` | D435i depth intrinsics (fx≈337 px) |
+| `/camera/head/color/image_raw` | `sensor_msgs/Image` | RGB 640×480, `rgb8`, head front camera, frame `head_front_cam_optical_link` |
+| `/camera/head/color/camera_info` | `sensor_msgs/CameraInfo` | head front camera intrinsics (fx≈465 px) |
+| `/camera/head/depth/image_rect_raw` | `sensor_msgs/Image` | depth 640×480, `32FC1` (metres), head front camera, frame `head_front_cam_optical_link` |
+| `/camera/head/depth/camera_info` | `sensor_msgs/CameraInfo` | head front depth intrinsics (fx≈337 px) |
 | `/utlidar/cloud_livox_mid360` | `sensor_msgs/PointCloud2` | Livox Mid-360, XYZ float32, frame `mid360_link` |
 | `/dog_imu_raw` | `sensor_msgs/Imu` | frame `dog_imu_link`, white noise: accel σ=0.02 m/s², gyro σ=0.005 rad/s |
 | `/dog_odom` | `nav_msgs/Odometry` | ground-truth pose from Isaac Lab, frame `odom` → `base_link` |
@@ -132,24 +136,11 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 ## What was added in this fork
 
-- **`tasks/g1_tasks/klapaucjusz_sim/`** — empty room task with LiDAR + D435i cameras + cylinder obstacle
+- **`tasks/g1_tasks/klapaucjusz_sim/`** — empty room task with LiDAR + D435i cameras + head front camera + cylinder obstacle
 - **`dds/lidar_dds.py`** — publishes Livox Mid-360 point cloud via DDS (`rt/utlidar/cloud_livox_mid360`)
-- **`dds/camera_dds.py`** — publishes RGB + depth images + CameraInfo via DDS
+- **`dds/camera_dds.py`** — publishes RGB + depth + head front camera images + CameraInfo via DDS
 - **`dds/odom_state_dds.py`** — publishes ground-truth odometry as `nav_msgs/Odometry` on `rt/dog_odom`
 - **`dds/imu_dds.py`** — publishes `sensor_msgs/Imu` on `rt/dog_imu_raw` (white noise: accel σ=0.02 m/s², gyro σ=0.005 rad/s)
 - **`dds/ros2_image_msgs.py`** — CycloneDDS IDL types for `sensor_msgs/Image` and `CameraInfo`
 - **`sensor_publisher.py`** — background threads for LiDAR + camera DDS publishing
-
-
-
----
-
-### New in klapaucjusz_ros g1_state_bridge g1_29dof_ros.urdf:
-```bash
-  <link name="d435_optical_link"></link>
-  <joint name="d435_optical_joint" type="fixed">
-    <origin xyz="0 0 0" rpy="-1.5707963 0 -1.5707963"/>
-    <parent link="d435_link"/>
-    <child link="d435_optical_link"/>
-  </joint>
-```
+- **head front camera** (`head_front_cam_link`) — second RGB camera on the robot's head, attached to `torso_link` at xyz `0.062 0.0 0.455`, publishes on `/camera/head/color/image_raw`, TF frame `head_front_cam_optical_link`

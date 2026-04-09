@@ -32,6 +32,16 @@ _depth_state = {
     "width": None,
 }
 
+_HEAD_DEPTH_SHM_NAME = "isaac_head_depth_shm"
+
+_head_depth_state = {
+    "shm": None,
+    "buf": None,
+    "placeholder": None,
+    "height": None,
+    "width": None,
+}
+
 
 def get_lidar_scan(env: ManagerBasedRLEnv) -> torch.Tensor:
     """Read LiDAR hits from the ray caster and write XYZ points to shared memory.
@@ -108,6 +118,43 @@ def get_depth_image(env: ManagerBasedRLEnv) -> torch.Tensor:
     return state["placeholder"]
 
 
+def get_head_depth_image(env: ManagerBasedRLEnv) -> torch.Tensor:
+    """Read head front camera depth image and write to shared memory.
+
+    The shared memory segment ``isaac_head_depth_shm`` contains:
+      - bytes [0:4]  : uint32 – height
+      - bytes [4:8]  : uint32 – width
+      - bytes [8:...]: float32 array – depth in metres (row-major, shape H×W)
+
+    Returns:
+        A zero placeholder tensor (the actual data is in shared memory).
+    """
+    import struct
+
+    depth = env.scene["head_depth_camera"].data.output["distance_to_image_plane"]  # (E, H, W, 1)
+    depth_np = depth[0, :, :, 0].cpu().numpy().astype(np.float32)  # (H, W)
+    h, w = depth_np.shape
+    data_bytes = 8 + h * w * 4
+
+    state = _head_depth_state
+    if state["shm"] is None:
+        try:
+            state["shm"] = shared_memory.SharedMemory(name=_HEAD_DEPTH_SHM_NAME)
+        except FileNotFoundError:
+            state["shm"] = shared_memory.SharedMemory(name=_HEAD_DEPTH_SHM_NAME, create=True, size=data_bytes)
+        state["buf"] = np.ndarray((data_bytes,), dtype=np.uint8, buffer=state["shm"].buf)
+        state["height"] = h
+        state["width"] = w
+
+    state["buf"][:8] = np.frombuffer(struct.pack("<II", h, w), dtype=np.uint8)
+    state["buf"][8:8 + h * w * 4] = np.frombuffer(depth_np.tobytes(), dtype=np.uint8)
+
+    if state["placeholder"] is None:
+        state["placeholder"] = torch.zeros((1,), device=env.device)
+
+    return state["placeholder"]
+
+
 # ensure functions can be accessed by external modules
 __all__ = [
     "get_robot_boy_joint_states",
@@ -115,5 +162,6 @@ __all__ = [
     "get_camera_image",
     "get_lidar_scan",
     "get_depth_image",
+    "get_head_depth_image",
 ]
 
