@@ -102,6 +102,12 @@ echo "**************************************************"
 chmod +x fetch_assets.sh
 bash fetch_assets.sh
 
+echo "**************************************************"
+echo "Downloading NVIDIA Isaac Sim People assets..."
+echo "**************************************************"
+chmod +x fetch_people.sh
+bash fetch_people.sh
+
 # ==========================================
 # PHASE 2: BUILD C++ DEPENDENCIES
 # ==========================================
