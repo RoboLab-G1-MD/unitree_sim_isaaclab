@@ -1,5 +1,10 @@
 # Copyright (c) 2025, Unitree Robotics Co., Ltd. All Rights Reserved.
 # License: Apache License, Version 2.0
+import os
+
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+_PEOPLE_DIR = os.path.join(project_root, "assets", "humans")
+
 import torch
 
 import isaaclab.envs.mdp as base_mdp
@@ -21,8 +26,8 @@ from tasks.common_event.event_manager import SimpleEvent, SimpleEventManager
 
 
 @configclass
-class EmptyRoom15SceneCfg(InteractiveSceneCfg):
-    """Empty 15m x 15m x 3m room scene for g1 inspire wholebody."""
+class EmptyRoom15H5SceneCfg(InteractiveSceneCfg):
+    """Empty 15m x 15m x 5m room — no cylinder, person in front of robot."""
 
     robot: ArticulationCfg = G1RobotPresets.g1_29dof_inspire_wholebody(
         init_pos=(0.0, 0.0, 0.80),
@@ -49,9 +54,9 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
 
     room_wall_north = AssetBaseCfg(
         prim_path="/World/envs/env_.*/RoomWallNorth",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 7.55, 1.5], rot=[1.0, 0.0, 0.0, 0.0]),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 7.55, 2.5], rot=[1.0, 0.0, 0.0, 0.0]),
         spawn=sim_utils.CuboidCfg(
-            size=(15.0, 0.1, 3.0),
+            size=(15.0, 0.1, 5.0),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
             collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.62, 0.62, 0.62), metallic=0.0),
@@ -60,9 +65,9 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
 
     room_wall_south = AssetBaseCfg(
         prim_path="/World/envs/env_.*/RoomWallSouth",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, -7.55, 1.5], rot=[1.0, 0.0, 0.0, 0.0]),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, -7.55, 2.5], rot=[1.0, 0.0, 0.0, 0.0]),
         spawn=sim_utils.CuboidCfg(
-            size=(15.0, 0.1, 3.0),
+            size=(15.0, 0.1, 5.0),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
             collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.62, 0.62, 0.62), metallic=0.0),
@@ -71,9 +76,9 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
 
     room_wall_east = AssetBaseCfg(
         prim_path="/World/envs/env_.*/RoomWallEast",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[7.55, 0.0, 1.5], rot=[1.0, 0.0, 0.0, 0.0]),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[7.55, 0.0, 2.5], rot=[1.0, 0.0, 0.0, 0.0]),
         spawn=sim_utils.CuboidCfg(
-            size=(0.1, 15.0, 3.0),
+            size=(0.1, 15.0, 5.0),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
             collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.62, 0.62, 0.62), metallic=0.0),
@@ -82,15 +87,16 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
 
     room_wall_west = AssetBaseCfg(
         prim_path="/World/envs/env_.*/RoomWallWest",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[-7.55, 0.0, 1.5], rot=[1.0, 0.0, 0.0, 0.0]),
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[-7.55, 0.0, 2.5], rot=[1.0, 0.0, 0.0, 0.0]),
         spawn=sim_utils.CuboidCfg(
-            size=(0.1, 15.0, 3.0),
+            size=(0.1, 15.0, 5.0),
             rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
             collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.62, 0.62, 0.62), metallic=0.0),
         ),
     )
 
+    # Lidar sees only floor and walls — no cylinder in this room.
     lidar = MultiMeshRayCasterCfg(
         prim_path="/World/envs/env_.*/Robot/mid360_link",
         ray_alignment="base",
@@ -100,10 +106,9 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
             "/World/envs/env_.*/RoomWallSouth",
             "/World/envs/env_.*/RoomWallEast",
             "/World/envs/env_.*/RoomWallWest",
-            "/World/envs/env_.*/Cylinder1",
-            "/World/envs/env_.*/Cylinder2",
-            "/World/envs/env_.*/Cylinder3",
-            "/World/envs/env_.*/Cylinder4",
+            "/World/envs/env_.*/Person",
+            # "/World/envs/env_.*/PersonLeft",
+            # "/World/envs/env_.*/PersonRight",
         ],
         pattern_cfg=LidarPatternCfg(
             channels=40,
@@ -125,63 +130,39 @@ class EmptyRoom15SceneCfg(InteractiveSceneCfg):
         ),
     )
 
-    cylinder1 = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/Cylinder1",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[2.0, 0.0, 0.5], rot=[1.0, 0.0, 0.0, 0.0]),
-        spawn=sim_utils.CylinderCfg(
-            radius=0.2,
-            height=1.0,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.8, 0.2, 0.2), metallic=0.0),
+    # Static NVIDIA Isaac Sim characters for person detection testing (YOLO).
+    # Run fetch_people.sh once to download assets from NVIDIA's public S3.
+    person = AssetBaseCfg(
+        prim_path="/World/envs/env_.*/Person",
+        init_state=AssetBaseCfg.InitialStateCfg(pos=[2.5, 0.0, 0.0], rot=[0.7071, 0.0, 0.0, -0.7071]),
+        spawn=sim_utils.UsdFileCfg(
+            usd_path=f"{_PEOPLE_DIR}/male_construction/male_construction.usd",
         ),
     )
-
-    cylinder2 = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/Cylinder2",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 2.0, 0.5], rot=[1.0, 0.0, 0.0, 0.0]),
-        spawn=sim_utils.CylinderCfg(
-            radius=0.2,
-            height=1.0,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.8, 0.2, 0.2), metallic=0.0),
-        ),
-    )
-
-    cylinder3 = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/Cylinder3",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[-2.0, 0.0, 0.5], rot=[1.0, 0.0, 0.0, 0.0]),
-        spawn=sim_utils.CylinderCfg(
-            radius=0.2,
-            height=1.0,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.8, 0.2, 0.2), metallic=0.0),
-        ),
-    )
-
-    cylinder4 = AssetBaseCfg(
-        prim_path="/World/envs/env_.*/Cylinder4",
-        init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, -2.0, 0.5], rot=[1.0, 0.0, 0.0, 0.0]),
-        spawn=sim_utils.CylinderCfg(
-            radius=0.2,
-            height=1.0,
-            rigid_props=sim_utils.RigidBodyPropertiesCfg(kinematic_enabled=True),
-            collision_props=sim_utils.CollisionPropertiesCfg(collision_enabled=True),
-            visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=(0.8, 0.2, 0.2), metallic=0.0),
-        ),
-    )
+    # person_left = AssetBaseCfg(
+    #     prim_path="/World/envs/env_.*/PersonLeft",
+    #     init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, 2.5, 0.0], rot=[0.7071, 0.0, 0.0, 0.0]),
+    #     spawn=sim_utils.UsdFileCfg(
+    #         usd_path=f"{_PEOPLE_DIR}/female_business/female_business.usd",
+    #     ),
+    # )
+    # person_right = AssetBaseCfg(
+    #     prim_path="/World/envs/env_.*/PersonRight",
+    #     init_state=AssetBaseCfg.InitialStateCfg(pos=[0.0, -2.5, 0.0], rot=[0.0, 0.0, 0.0, 1.0]),
+    #     spawn=sim_utils.UsdFileCfg(
+    #         usd_path=f"{_PEOPLE_DIR}/female_medical/female_medical.usd",
+    #     ),
+    # )
 
     # ── cameras ───────────────────────────────────────────────────────────
     # Head RGB  (torso_link): 640x480, HFOV≈69° — person detection
-    # head_color_camera = CameraPresets.g1_head_color_camera()
+    head_color_camera = CameraPresets.g1_head_color_camera()
     # Head depth (torso_link): 640x480, HFOV≈87° — person detection
-    # head_depth_camera = CameraPresets.g1_head_depth_camera()
+    head_depth_camera = CameraPresets.g1_head_depth_camera()
     # D435i RGB  (d435_link): 640x480, HFOV≈69° — obstacle detection
-    color_camera = CameraPresets.g1_color_camera()
+    # color_camera = CameraPresets.g1_color_camera()
     # D435i depth (d435_link): 640x480, HFOV≈87° — obstacle detection
-    depth_camera = CameraPresets.g1_depth_camera()
+    # depth_camera = CameraPresets.g1_depth_camera()
 
     robot_camera = CameraPresets.g1_world_camera()
 
@@ -235,8 +216,8 @@ class EventCfg:
 
 
 @configclass
-class KlapaucjuszSimEnvCfg(ManagerBasedRLEnvCfg):
-    scene: EmptyRoom15SceneCfg = EmptyRoom15SceneCfg(num_envs=1, env_spacing=2.5, replicate_physics=True)
+class KlapaucjuszRoom2EnvCfg(ManagerBasedRLEnvCfg):
+    scene: EmptyRoom15H5SceneCfg = EmptyRoom15H5SceneCfg(num_envs=1, env_spacing=2.5, replicate_physics=True)
     observations: ObservationsCfg = ObservationsCfg()
     actions: ActionsCfg = ActionsCfg()
     terminations: TerminationsCfg = TerminationsCfg()

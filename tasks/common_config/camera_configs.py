@@ -92,6 +92,60 @@ class CameraPresets:
         """front camera configuration"""
         return CameraBaseCfg.get_camera_config(prim_path = "/World/envs/env_.*/Robot/camera_link/front_cam")
     @classmethod
+    def g1_head_color_camera(cls) -> CameraCfg:
+        """G1 head RGB camera: 640x480, HFOV≈69°, torso_link. Aimed forward — person detection."""
+        return CameraBaseCfg.get_camera_config(
+            prim_path="/World/envs/env_.*/Robot/torso_link/head_front_cam",
+            height=480,
+            width=640,
+            focal_length=7.6,
+            horizontal_aperture=10.46,
+            clipping_range=(0.1, 10.0),
+            data_types=["rgb"],
+            pos_offset=(0.075, 0.0, 0.47),
+            rot_offset=(0.5, -0.5, 0.5, -0.5),
+        )
+    @classmethod
+    def g1_head_depth_camera(cls) -> CameraCfg:
+        """G1 head depth camera: 640x480, HFOV≈87°, torso_link. Aimed forward — person detection."""
+        return CameraBaseCfg.get_camera_config(
+            prim_path="/World/envs/env_.*/Robot/torso_link/head_depth_cam",
+            height=480,
+            width=640,
+            focal_length=7.6,
+            horizontal_aperture=14.42,
+            clipping_range=(0.1, 10.0),
+            data_types=["distance_to_image_plane"],
+            pos_offset=(0.075, 0.0, 0.47),
+            rot_offset=(0.5, -0.5, 0.5, -0.5),
+        )
+    @classmethod
+    def g1_color_camera(cls) -> CameraCfg:
+        """G1 D435i RGB camera: 640x480, HFOV≈69°, d435_link. Aimed downward — obstacle detection."""
+        return CameraBaseCfg.get_camera_config(
+            prim_path="/World/envs/env_.*/Robot/d435_link/front_cam",
+            height=480,
+            width=640,
+            focal_length=7.6,
+            horizontal_aperture=10.46,
+            clipping_range=(0.1, 10.0),
+            data_types=["rgb"],
+            rot_offset=(0.5, -0.5, 0.5, -0.5),
+        )
+    @classmethod
+    def g1_depth_camera(cls) -> CameraCfg:
+        """G1 D435i depth camera: 640x480, HFOV≈87°, d435_link. Aimed downward — obstacle detection."""
+        return CameraBaseCfg.get_camera_config(
+            prim_path="/World/envs/env_.*/Robot/d435_link/depth_cam",
+            height=480,
+            width=640,
+            focal_length=7.6,
+            horizontal_aperture=14.42,
+            clipping_range=(0.1, 10.0),
+            data_types=["distance_to_image_plane"],
+            rot_offset=(0.5, -0.5, 0.5, -0.5),
+        )
+    @classmethod
     def g1_world_camera(cls) -> CameraCfg:
         """front camera configuration"""
         return CameraBaseCfg.get_camera_config(prim_path="/World/envs/env_.*/Robot/d435_link/PerspectiveCamera_robot",

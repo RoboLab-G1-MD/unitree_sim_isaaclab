@@ -51,7 +51,10 @@ After changing devcontainer config — **Reopen in Container** or **Rebuild**.
 ```bash
 cd ~/unitree_sim_isaaclab
 conda activate unitree_sim_env
+```
 
+### task Klapaucjusz-Sim
+```bash
 python sim_main.py \
     --device cpu \
     --enable_cameras \
@@ -59,7 +62,19 @@ python sim_main.py \
     --robot_type g129 \
     --enable_inspire_dds \
     --enable_sensor_publisher \
-    --use_sim_time
+    --use_sim_time  # use when klapaucjusz_ros is launched with use_sim_time:=true
+```
+
+### task Klapaucjusz-Sim-Room2
+```bash
+python sim_main.py \
+    --device cpu \
+    --enable_cameras \
+    --task Klapaucjusz-Sim-Room2 \
+    --robot_type g129 \
+    --enable_inspire_dds \
+    --enable_sensor_publisher \
+    --use_sim_time  # use when klapaucjusz_ros is launched with use_sim_time:=true
 ```
 
 ---
@@ -136,11 +151,13 @@ All topics use the `rt/` prefix — visible in ROS2 as topics without `rt/`.
 
 ## What was added in this fork
 
-- **`tasks/g1_tasks/klapaucjusz_sim/`** — empty room task with LiDAR + D435i cameras + head front camera + cylinder obstacle
+- **`tasks/g1_tasks/klapaucjusz_sim/klapaucjusz_sim_hw_env_cfg.py`** — Room 1: 15×15×3m, LiDAR + cameras + 4 cylinder obstacles at ±2m N/S/E/W (`Klapaucjusz-Sim`)
+- **`tasks/g1_tasks/klapaucjusz_sim/klapaucjusz_sim_room2_hw_env_cfg.py`** — Room 2: 15×15×5m, up to 3 NVIDIA characters for person detection, no cylinders (`Klapaucjusz-Sim-Room2`)
 - **`dds/lidar_dds.py`** — publishes Livox Mid-360 point cloud via DDS (`rt/utlidar/cloud_livox_mid360`)
-- **`dds/camera_dds.py`** — publishes RGB + depth + head front camera images + CameraInfo via DDS
+- **`dds/camera_dds.py`** — publishes `color_camera`, `depth_camera`, `head_color_camera`, `head_depth_camera` + CameraInfo via DDS
 - **`dds/odom_state_dds.py`** — publishes ground-truth odometry as `nav_msgs/Odometry` on `rt/dog_odom`
 - **`dds/imu_dds.py`** — publishes `sensor_msgs/Imu` on `rt/dog_imu_raw` (white noise: accel σ=0.02 m/s², gyro σ=0.005 rad/s)
 - **`dds/ros2_image_msgs.py`** — CycloneDDS IDL types for `sensor_msgs/Image` and `CameraInfo`
 - **`sensor_publisher.py`** — background threads for LiDAR + camera DDS publishing
-- **head front camera** (`head_front_cam_link`) — second RGB camera on the robot's head, attached to `torso_link` at xyz `0.062 0.0 0.455`, publishes on `/camera/head/color/image_raw`, TF frame `head_front_cam_optical_link`
+- **`fetch_people.sh`** — downloads NVIDIA Isaac Sim characters from public S3 to `assets/humans/`
+

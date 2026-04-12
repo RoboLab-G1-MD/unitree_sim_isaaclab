@@ -109,18 +109,17 @@ def get_camera_image(
     
 
     camera_keys = _camera_cache['camera_keys']
-    # Head camera (front camera)
-    if "front_camera" in camera_keys:
-        head_image = env.scene["front_camera"].data.output["rgb"][0]  # [batch, height, width, 3]
-
+    # color_camera: chest-level RGB (obstacles / floor detection)
+    if "color_camera" in camera_keys:
+        head_image = env.scene["color_camera"].data.output["rgb"][0]  # [batch, height, width, 3]
         if head_image.device.type == 'cpu':
             images["head"] = head_image.numpy()
         else:
             images["head"] = head_image.cpu().numpy()
-    
-    # Head front camera (second head camera)
-    if "head_camera" in camera_keys:
-        head_front_image = env.scene["head_camera"].data.output["rgb"][0]
+
+    # head_color_camera: head-level RGB (person detection)
+    if "head_color_camera" in camera_keys:
+        head_front_image = env.scene["head_color_camera"].data.output["rgb"][0]
         if head_front_image.device.type == 'cpu':
             images["head_front"] = head_front_image.numpy()
         else:
